@@ -1,321 +1,123 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#130607" />
-  <title>The Dodel Museum</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg:#130607; --bg2:#21090f; --panel:#2a1015; --panel2:#35131b;
-      --cream:#f5efe6; --muted:#cbbdb1; --gold:#b89355; --gold2:#e2c486;
-      --maroon:#551222; --line:rgba(184,147,85,.34); --glass:rgba(19,6,7,.72);
-      --shadow:0 22px 60px rgba(0,0,0,.35);
-      --serif:'Cormorant Garamond', Georgia, serif; --sans:'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; background:var(--bg); }
-    body { margin:0; background:
-        radial-gradient(circle at 50% -15%, rgba(102,31,42,.75), transparent 45%),
-        linear-gradient(180deg, #130607 0%, #1d0810 40%, #120507 100%);
-      color:var(--cream); font-family:var(--sans); overflow-x:hidden; -webkit-font-smoothing:antialiased; }
-    body.locked { overflow:hidden; }
-    button { font:inherit; color:inherit; }
-    a { color:inherit; }
-    .noise { position:fixed; inset:0; pointer-events:none; opacity:.055; z-index:200; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
-    .progress { position:fixed; top:0; left:0; height:3px; width:0%; background:linear-gradient(90deg, var(--gold), var(--gold2)); z-index:220; box-shadow:0 0 18px rgba(226,196,134,.6); }
-    .music { position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:180; width:44px; height:44px; border:1px solid var(--line); background:rgba(30,9,14,.78); backdrop-filter:blur(14px); border-radius:999px; display:grid; place-items:center; color:var(--gold2); box-shadow:0 12px 38px rgba(0,0,0,.35); }
-    .music span { transform:translateY(-1px); }
-    .music.off { color:var(--muted); opacity:.72; }
-
-    .landing { min-height:100svh; padding:calc(28px + env(safe-area-inset-top)) 22px calc(26px + env(safe-area-inset-bottom)); display:grid; place-items:center; position:relative; isolation:isolate; cursor:pointer; overflow:hidden; }
-    .landing::before { content:""; position:absolute; inset:-4%; background:linear-gradient(rgba(19,6,7,.50), rgba(19,6,7,.82)), url('Photos/70.JPG') center/cover no-repeat; filter:saturate(.78) brightness(.72); transform:scale(1.05); z-index:-2; }
-    .landing::after { content:""; position:absolute; inset:0; background:radial-gradient(circle at center, transparent 0 35%, rgba(19,6,7,.68) 72%, rgba(19,6,7,.95) 100%); z-index:-1; }
-    .landing-card { width:min(100%, 350px); text-align:center; padding:30px 18px; border:1px solid var(--line); background:rgba(19,6,7,.58); backdrop-filter:blur(12px); box-shadow:var(--shadow); }
-    .rule { height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent); margin:0 auto 26px; width:92%; }
-    .rule.bottom { margin:28px auto 0; }
-    .eyebrow { letter-spacing:.26em; text-transform:uppercase; font-size:11px; color:var(--gold2); font-weight:600; }
-    h1 { margin:14px 0 10px; font-family:var(--serif); font-size:clamp(46px, 15vw, 68px); line-height:.82; letter-spacing:.03em; font-weight:600; }
-    .subtitle { margin:16px 0 0; font-family:var(--serif); font-size:23px; color:var(--cream); }
-    .years { margin-top:8px; color:var(--gold2); letter-spacing:.14em; font-size:13px; }
-    .curated { margin-top:22px; color:var(--muted); font-size:13px; }
-    .tap { margin-top:26px; display:inline-flex; align-items:center; gap:10px; color:var(--cream); font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
-    .tap::before,.tap::after { content:""; height:1px; width:24px; background:var(--line); }
-
-    main { opacity:0; transform:translateY(18px); pointer-events:none; transition:opacity .9s ease, transform .9s ease; }
-    main.visible { opacity:1; transform:none; pointer-events:auto; }
-    .hidden { display:none !important; }
-    section { position:relative; padding:80px 18px; }
-    .hall { min-height:100svh; display:flex; flex-direction:column; justify-content:center; gap:34px; }
-    .hall-image { border-radius:28px; overflow:hidden; border:1px solid var(--line); background:#080304; box-shadow:var(--shadow); }
-    .hall-image img { width:100%; display:block; height:auto; object-fit:contain; }
-    .intro-copy { max-width:340px; margin:0 auto; text-align:center; }
-    .intro-copy p { font-family:var(--serif); font-size:25px; line-height:1.22; margin:0 0 18px; color:var(--cream); }
-    .intro-copy p:last-child { font-family:var(--sans); font-size:14px; line-height:1.75; color:var(--muted); }
-    .begin { margin:14px auto 0; display:inline-flex; align-items:center; justify-content:center; padding:13px 18px; border:1px solid var(--line); color:var(--gold2); background:rgba(42,16,21,.55); border-radius:999px; text-decoration:none; font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
-
-    .exhibit { min-height:100svh; display:flex; flex-direction:column; justify-content:center; gap:18px; contain:layout; }
-    .exhibit.inview .exhibit-card { opacity:1; transform:none; }
-    .exhibit-card { opacity:.001; transform:translateY(24px); transition:opacity .9s ease, transform .9s ease; }
-    .exhibit-no { font-family:var(--serif); font-size:74px; line-height:.75; color:rgba(184,147,85,.23); letter-spacing:.03em; margin:0 0 -6px; }
-    .meta-top { display:flex; justify-content:space-between; gap:14px; color:var(--gold2); letter-spacing:.18em; text-transform:uppercase; font-size:10px; margin:0 2px 10px; }
-    .photo-frame { border:1px solid var(--line); border-radius:26px; background:linear-gradient(180deg, rgba(245,239,230,.06), rgba(0,0,0,.14)); overflow:hidden; box-shadow:0 22px 60px rgba(0,0,0,.32); }
-    .swipe { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-    .swipe::-webkit-scrollbar { display:none; }
-    .slide { flex:0 0 100%; min-width:100%; scroll-snap-align:center; display:grid; place-items:center; padding:12px; min-height:300px; max-height:62svh; background:#090304; }
-    .slide img { max-width:100%; max-height:58svh; width:auto; height:auto; object-fit:contain; display:block; border-radius:18px; }
-    .dots { display:flex; justify-content:center; gap:7px; padding:12px 0 2px; }
-    .dot { width:5px; height:5px; border-radius:50%; background:rgba(245,239,230,.28); transition:all .25s ease; }
-    .dot.active { width:18px; border-radius:999px; background:var(--gold2); }
-    .label { padding:18px 2px 0; }
-    .label h2 { font-family:var(--serif); font-weight:600; font-size:34px; line-height:.98; margin:0 0 12px; letter-spacing:.01em; }
-    .where { display:flex; flex-wrap:wrap; gap:8px; color:var(--muted); font-size:12px; line-height:1.5; }
-    .where span { padding:7px 10px; border:1px solid rgba(184,147,85,.22); border-radius:999px; background:rgba(255,255,255,.025); }
-
-    .hallway { min-height:92svh; display:grid; place-items:center; text-align:center; }
-    .hallway-inner { width:min(100%,360px); border:1px solid var(--line); padding:38px 22px; background:linear-gradient(180deg,rgba(42,16,21,.82),rgba(19,6,7,.52)); box-shadow:var(--shadow); border-radius:0; }
-    .hallway h2 { font-family:var(--serif); font-size:39px; line-height:.95; margin:14px 0; }
-    .hallway p { color:var(--muted); line-height:1.7; font-size:14px; }
-    .archive-button { margin-top:18px; border:1px solid var(--line); background:rgba(184,147,85,.12); border-radius:999px; padding:13px 18px; color:var(--gold2); letter-spacing:.15em; text-transform:uppercase; font-size:12px; }
-
-    .letter-section { min-height:100svh; padding:80px 16px; display:none; }
-    .letter-section.visible { display:block; }
-    .paper { width:min(100%, 360px); margin:0 auto; background:#f5efe6; color:#2b1713; border-radius:28px; padding:28px 22px; box-shadow:0 30px 100px rgba(0,0,0,.5); position:relative; overflow:hidden; }
-    .paper::before { content:""; position:absolute; inset:0; opacity:.22; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='.32'/%3E%3C/svg%3E"); }
-    .paper-content { position:relative; }
-    .paper .stamp { color:#7b1529; letter-spacing:.18em; font-size:10px; text-transform:uppercase; font-weight:700; margin-bottom:20px; }
-    .paper p { font-family:var(--serif); font-size:20px; line-height:1.45; margin:0 0 17px; }
-    .paper ul { margin:0 0 22px; padding-left:21px; }
-    .paper li { font-family:var(--serif); font-size:20px; line-height:1.42; margin:0 0 8px; }
-    .letter-ending { margin-top:26px; padding-top:20px; border-top:1px solid rgba(43,23,19,.17); font-weight:600; }
-    .end-screen { min-height:92svh; display:grid; place-items:center; text-align:center; padding:80px 22px; }
-    .end-screen h2 { font-family:var(--serif); font-size:42px; line-height:1; margin:0 0 20px; }
-    .end-screen p { color:var(--muted); margin:0 0 8px; }
-    .museum-archive-link { margin-top:38px; display:inline-block; border:0; background:transparent; color:var(--gold2); padding:10px; }
-    .museum-archive-link strong { display:block; font-family:var(--serif); font-size:26px; font-weight:500; }
-    .museum-archive-link span { display:block; margin-top:8px; font-size:12px; color:var(--muted); }
-
-    .video-archive { display:none; padding:80px 18px calc(90px + env(safe-area-inset-bottom)); }
-    .video-archive.visible { display:block; }
-    .archive-head { text-align:center; max-width:330px; margin:0 auto 34px; }
-    .archive-head h2 { font-family:var(--serif); font-size:48px; line-height:.92; margin:0 0 12px; }
-    .archive-head p { color:var(--muted); font-size:13px; line-height:1.7; }
-    .video-list { display:grid; gap:18px; max-width:380px; margin:0 auto; }
-    .video-card { border:1px solid var(--line); background:rgba(42,16,21,.62); border-radius:24px; padding:14px; box-shadow:0 18px 46px rgba(0,0,0,.22); }
-    .video-title { display:flex; justify-content:space-between; align-items:center; color:var(--gold2); font-size:12px; letter-spacing:.14em; text-transform:uppercase; margin:0 0 12px; }
-    .video-card video { width:100%; height:auto; display:block; border-radius:18px; background:#050203; max-height:72svh; }
-
-    .lightbox { position:fixed; inset:0; background:rgba(5,2,3,.95); display:none; align-items:center; justify-content:center; z-index:300; padding:20px; }
-    .lightbox.visible { display:flex; }
-    .lightbox img { max-width:100%; max-height:88svh; width:auto; height:auto; object-fit:contain; border-radius:16px; }
-    .close { position:absolute; top:calc(16px + env(safe-area-inset-top)); right:16px; width:44px; height:44px; border-radius:999px; border:1px solid var(--line); background:rgba(42,16,21,.8); color:var(--cream); }
-
-    @media (min-width:700px) {
-      section { padding-left:28px; padding-right:28px; }
-      .exhibit-card, .hall-image, .intro-copy { max-width:640px; margin-left:auto; margin-right:auto; }
-      .slide { min-height:520px; max-height:72vh; }
-      .slide img { max-height:68vh; }
-      .label h2 { font-size:50px; }
-      .exhibit-no { font-size:110px; }
-      .paper { width:min(720px, 92vw); padding:52px 58px; }
-      .paper p, .paper li { font-size:24px; }
-      .landing-card { width:460px; padding:44px 34px; }
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>The Dodel Museum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root { --maroon:#3b0710; --maroon2:#5b101d; --dark:#100406; --cream:#f4eadf; --muted:#c9b9a8; --gold:#c59b55; --glass:rgba(255,248,238,.075); }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:radial-gradient(circle at top,#4a0b17 0,#160508 48%,#090304 100%); color:var(--cream); font-family:Inter,system-ui,sans-serif; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+body.entered #cover { opacity:0; pointer-events:none; transform:scale(1.03); }
+.progress { position:fixed; top:0; left:0; height:2px; background:var(--gold); width:0; z-index:99; box-shadow:0 0 16px var(--gold); }
+#cover { position:fixed; inset:0; z-index:200; display:grid; place-items:center; background:linear-gradient(rgba(10,2,4,.68),rgba(10,2,4,.88)), radial-gradient(circle at center,#5c0f20 0,#21070b 48%,#050102 100%); transition:1s ease; cursor:pointer; text-align:center; padding:24px; }
+.cover-inner { position:relative; border:1px solid rgba(197,155,85,.45); padding:44px 22px; max-width:760px; width:100%; box-shadow:0 30px 120px rgba(0,0,0,.36), inset 0 0 80px rgba(197,155,85,.05); background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012)); }
+.kicker,.museum-label { letter-spacing:.24em; text-transform:uppercase; color:var(--muted); font-size:11px; }
+h1,h2,h3 { font-family:'Cormorant Garamond',serif; margin:0; font-weight:600; }
+.cover-title { font-size:clamp(48px,13vw,104px); letter-spacing:.08em; line-height:.86; text-shadow:0 18px 60px rgba(0,0,0,.35); }
+.cover-sub { font-family:'Cormorant Garamond',serif; font-size:clamp(22px,5vw,34px); margin:22px 0 10px; color:#f9efe6; }
+.curated { color:var(--muted); font-size:13px; letter-spacing:.22em; text-transform:uppercase; margin-top:20px; }
+.enter-note { margin-top:42px; color:var(--gold); font-size:12px; letter-spacing:.24em; text-transform:uppercase; }
+.line { height:1px; background:linear-gradient(90deg,transparent,rgba(197,155,85,.75),transparent); margin:22px 0 34px; }
+.line.bottom { margin:34px 0 0; }
+.music { position:fixed; right:14px; bottom:14px; z-index:120; display:flex; gap:8px; align-items:center; background:rgba(14,4,6,.78); border:1px solid rgba(197,155,85,.38); border-radius:999px; padding:8px 11px; backdrop-filter:blur(12px); font-size:12px; color:var(--muted); }
+.music button { background:none; color:var(--cream); border:0; font-size:18px; cursor:pointer; width:24px; height:24px; line-height:1; }
+.music span { display:none; }
+section { min-height:100svh; padding:76px 5.5vw; display:flex; align-items:center; position:relative; }
+.hall { justify-content:center; text-align:center; }
+.hall:before { content:""; position:absolute; inset:0; background:linear-gradient(rgba(16,4,6,.38),rgba(16,4,6,.9)),url('photos/1.jpg') center/cover; opacity:.35; }
+.hall .content { position:relative; max-width:850px; }
+.hall h2 { font-size:clamp(46px,8vw,92px); }
+.hall p { font-family:'Cormorant Garamond',serif; font-size:clamp(24px,4vw,38px); line-height:1.25; color:#f5e9dc; }
+.exhibit { display:grid; grid-template-columns:minmax(0,1fr); gap:32px; border-top:1px solid rgba(197,155,85,.12); }
+.meta { align-self:center; }
+.num { font-family:'Cormorant Garamond',serif; font-size:clamp(74px,13vw,180px); line-height:.8; color:rgba(197,155,85,.20); }
+.meta h2 { font-size:clamp(38px,6vw,76px); line-height:.95; margin-top:-18px; }
+.year { margin-top:24px; color:var(--gold); letter-spacing:.24em; font-size:12px; text-transform:uppercase; }
+.loc { margin-top:10px; color:var(--muted); font-size:15px; line-height:1.6; }
+.gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; align-self:center; }
+.frame { background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02)); border:1px solid rgba(197,155,85,.28); padding:9px; min-height:200px; cursor:pointer; transition:.35s ease; display:flex; align-items:center; justify-content:center; }
+.frame:hover { transform:translateY(-5px); border-color:rgba(197,155,85,.7); box-shadow:0 20px 60px rgba(0,0,0,.3); }
+.frame img { width:100%; height:auto; max-height:70vh; object-fit:contain; display:block; filter:saturate(.92) contrast(1.04); background:#090304; }
+.single .frame { min-height:65vh; }
+.fade { opacity:0; transform:translateY(28px); transition:1s ease; }
+.fade.visible { opacity:1; transform:none; }
+.archive, .letter-section, .end { justify-content:center; text-align:center; flex-direction:column; }
+.archive-card,.letter-card { max-width:860px; border:1px solid rgba(197,155,85,.35); background:rgba(11,3,5,.45); padding:44px clamp(22px,5vw,70px); box-shadow:0 30px 100px rgba(0,0,0,.35); }
+.archive-card h2,.letter-card h2 { font-size:clamp(38px,7vw,72px); }
+.btn { margin-top:28px; border:1px solid var(--gold); background:transparent; color:var(--cream); padding:13px 24px; letter-spacing:.16em; text-transform:uppercase; border-radius:999px; cursor:pointer; }
+.letter-text { white-space:pre-wrap; text-align:left; font-family:'Cormorant Garamond',serif; font-size:clamp(20px,2.5vw,28px); line-height:1.5; color:#f8ecdf; margin-top:26px; display:none; }
+.letter-card.open .letter-text { display:block; }
+.end h2 { font-size:clamp(34px,7vw,78px); line-height:1.05; }
+.museum-archive { margin-top:80px; color:rgba(244,234,223,.55); cursor:pointer; font-size:14px; letter-spacing:.18em; text-transform:uppercase; }
+.museum-archive small { display:block; margin-top:8px; letter-spacing:.08em; text-transform:none; }
+#videoArchive { display:none; background:#080203; }
+#videoArchive.open { display:flex; }
+.video-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; width:100%; margin-top:34px; }
+.video-card { border:1px solid rgba(197,155,85,.32); background:rgba(255,255,255,.04); padding:12px; text-align:left; }
+video { width:100%; max-height:430px; background:#000; display:block; }
+.video-card p { color:var(--muted); font-size:12px; word-break:break-word; margin:10px 2px 0; letter-spacing:.08em; text-transform:uppercase; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:180; display:none; align-items:center; justify-content:center; padding:24px; }
+.modal.open { display:flex; }
+.modal img { max-width:94vw; max-height:90vh; object-fit:contain; border:1px solid rgba(197,155,85,.4); }
+.close { position:fixed; top:18px; right:18px; background:rgba(255,255,255,.08); border:1px solid rgba(197,155,85,.4); color:white; border-radius:999px; width:42px; height:42px; cursor:pointer; }
+@media(min-width:640px) { .music span { display:inline; } }
+@media(min-width:900px) { .exhibit { grid-template-columns:42% 58%; gap:56px; } }
+@media(max-width:899px) {
+  section { padding:72px 20px; }
+  .exhibit { min-height:auto; padding-top:78px; padding-bottom:78px; gap:24px; display:block; }
+  .meta { margin-bottom:22px; }
+  .meta h2 { font-size:clamp(34px,11vw,54px); }
+  .num { font-size:clamp(70px,25vw,120px); }
+  .year { margin-top:18px; }
+  .loc { font-size:14px; }
+  .gallery { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:14px; padding:0 20px 10px; margin-left:-20px; margin-right:-20px; -webkit-overflow-scrolling:touch; }
+  .gallery::-webkit-scrollbar { display:none; }
+  .frame { flex:0 0 86vw; scroll-snap-align:center; min-height:auto; height:auto; max-height:none; padding:8px; }
+  .frame img { width:100%; height:auto; max-height:65vh; object-fit:contain; }
+  .single .frame { min-height:auto; }
+}
+@media(max-width:640px) {
+  .cover-inner { padding:38px 18px; }
+  .video-grid { grid-template-columns:1fr; }
+  .archive-card,.letter-card { padding:34px 20px; }
+  .letter-text { font-size:20px; }
+  .hall p { font-size:25px; }
+  .hall h2 { font-size:48px; }
+  video { max-height:70vh; }
+}
+</style>
 </head>
-<body class="locked">
-  <div class="progress" id="progress"></div>
-  <div class="noise"></div>
-  <button class="music off" id="musicBtn" aria-label="Toggle music"><span>♪</span></button>
-  <audio id="music" loop preload="none"><source src="Music/everything - the black skirts - intro__ 1 hour loop.mp4" type="video/mp4"></audio>
-
-  <section class="landing" id="landing" aria-label="The Dodel Museum landing page">
-    <div class="landing-card">
-      <div class="rule"></div>
-      <div class="eyebrow">The Dodel Museum</div>
-      <h1>THE<br>DODEL<br>MUSEUM</h1>
-      <div class="subtitle">A Temporary Exhibition</div>
-      <div class="years">2022—2026</div>
-      <div class="curated">Curated by Selena</div>
-      <div class="tap">Tap to Enter</div>
-      <div class="rule bottom"></div>
-    </div>
-  </section>
-
-  <main id="main">
-    <section class="hall" id="entrance">
-      <div class="hall-image"><img src="Photos/1.heic" alt="Museum entrance photograph" loading="eager"></div>
-      <div class="intro-copy">
-        <p>Every museum preserves something worth remembering.</p>
-        <p>This one preserves four years of friendship, laughter, late-night conversations, spontaneous trips, and a part of life we'll always call our Taiwan years.</p>
-        <a class="begin" href="#exhibit-01">Begin Exhibition</a>
-      </div>
-    </section>
-
-    <div id="exhibits"></div>
-
-    <section class="hallway" id="restricted">
-      <div class="hallway-inner">
-        <div class="eyebrow">Restricted Archive</div>
-        <h2>Personal Letter</h2>
-        <p>Contains one personal document. Access is granted to one visitor only.</p>
-        <button class="archive-button" id="openLetter">Open Archive</button>
-      </div>
-    </section>
-
-    <section class="letter-section" id="letterSection">
-      <article class="paper">
-        <div class="paper-content">
-          <div class="stamp">Authorized Visitor: Dodel</div>
-          <div id="letterText"></div>
-        </div>
-      </article>
-    </section>
-
-    <section class="end-screen" id="end">
-      <div>
-        <h2>Thank you for visiting.</h2>
-        <p>Until our next trip.</p>
-        <p>See you somewhere else in the world.</p>
-        <button class="museum-archive-link" id="showArchive"><strong>Museum Archive</strong><span>(Click me for more)</span></button>
-      </div>
-    </section>
-
-    <section class="video-archive" id="videoArchive">
-      <div class="archive-head">
-        <div class="eyebrow">Archive Room</div>
-        <h2>Museum Archive</h2>
-        <p>Recovered recordings from 2022—2026. Videos only.</p>
-      </div>
-      <div class="video-list" id="videoList"></div>
-    </section>
-  </main>
-
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
-    <button class="close" id="closeLightbox" aria-label="Close image">×</button>
-    <img id="lightboxImg" alt="Expanded museum photograph">
-  </div>
-
-  <script>
-    const EXHIBITS = [{"no": "01", "title": "The Beginning", "year": "2022", "location": "NCCU", "photos": [{"src": "Photos/1.heic", "num": 1}, {"src": "Photos/2.jpg", "num": 2}, {"src": "Photos/3.heic", "num": 3}]}, {"no": "02", "title": "Touristy stuffs", "year": "2022", "location": "Xinyi, Shilin Night Market", "photos": [{"src": "Photos/4.JPG", "num": 4}, {"src": "Photos/5.heic", "num": 5}]}, {"no": "04", "title": "Our first PERPITA event", "year": "2022", "location": "NTUST", "photos": [{"src": "Photos/6.heic", "num": 6}]}, {"no": "05", "title": "Makan babi di toko depan kari 45 dulu.", "year": "2022", "location": "NCCU", "photos": [{"src": "Photos/7.heic", "num": 7}]}, {"no": "06", "title": "Bawah jembatan (BAJEM)", "year": "2022", "location": "NCCU", "photos": [{"src": "Photos/8.jpg", "num": 8}, {"src": "Photos/9.heic", "num": 9}, {"src": "Photos/10.JPG", "num": 10}, {"src": "Photos/11.JPG", "num": 11}]}, {"no": "07", "title": "Foto sama hanyang, kenapa ya...", "year": "2022", "location": "Depan 行政大樓", "photos": [{"src": "Photos/12.JPG", "num": 12}]}, {"no": "08", "title": "Dinner kari ecol", "year": "2022", "location": "Gongguan", "photos": [{"src": "Photos/13.heic", "num": 13}, {"src": "Photos/14.heic", "num": 14}, {"src": "Photos/15.heic", "num": 15}, {"src": "Photos/16.heic", "num": 16}, {"src": "Photos/17.heic", "num": 17}]}, {"no": "09", "title": "Makan apaan yak ini", "year": "2022", "location": "NCCU", "photos": [{"src": "Photos/18.JPG", "num": 18}]}, {"no": "10", "title": "Stargazing", "year": "2022", "location": "NCCU", "photos": [{"src": "Photos/19.JPG", "num": 19}]}, {"no": "11", "title": "Random pics", "year": "2022", "location": "NCCU", "photos": [{"src": "Photos/20.JPG", "num": 20}, {"src": "Photos/21.JPG", "num": 21}, {"src": "Photos/22.heic", "num": 22}, {"src": "Photos/23.heic", "num": 23}, {"src": "Photos/49.JPG", "num": 49}]}, {"no": "12", "title": "Taipei Zoo Day", "year": "2022", "location": "Taipei Zoo", "photos": [{"src": "Photos/24.JPG", "num": 24}, {"src": "Photos/25.heic", "num": 25}, {"src": "Photos/26.jpg", "num": 26}, {"src": "Photos/27.heic", "num": 27}]}, {"no": "13", "title": "Costco day + Nonton lampu di presidential office + Biking", "year": "2022", "location": "Costco, somewhere near Ximen and riverside", "photos": [{"src": "Photos/28.JPG", "num": 28}, {"src": "Photos/29.JPG", "num": 29}, {"src": "Photos/30.JPG", "num": 30}, {"src": "Photos/31.heic", "num": 31}, {"src": "Photos/32.heic", "num": 32}, {"src": "Photos/33.JPG", "num": 33}]}, {"no": "14", "title": "Hangout with the friend group", "year": "2022", "location": "Anjiu, NCCU", "photos": [{"src": "Photos/34.JPG", "num": 34}, {"src": "Photos/35.JPG", "num": 35}, {"src": "Photos/36.JPG", "num": 36}, {"src": "Photos/37.JPG", "num": 37}]}, {"no": "15", "title": "Ku hamil duluan, sudah 3 bulan", "year": "2022", "location": "BAJEM NCCU", "photos": [{"src": "Photos/38.heic", "num": 38}]}, {"no": "16", "title": "Drunk after costco liquor", "year": "2022", "location": "中庭 Commerce, NCCU", "photos": [{"src": "Photos/39.heic", "num": 39}]}, {"no": "17", "title": "HALLOWEEN NIGHT", "year": "2022", "location": "MAJI", "photos": [{"src": "Photos/40.heic", "num": 40}, {"src": "Photos/41.heic", "num": 41}, {"src": "Photos/42.JPG", "num": 42}, {"src": "Photos/43.heic", "num": 43}, {"src": "Photos/44.HEIC", "num": 44}]}, {"no": "18", "title": "NYOBAIN KUEH COSTCO", "year": "2022", "location": "中庭 Commerce, NCCU", "photos": [{"src": "Photos/45.heic", "num": 45}]}, {"no": "19", "title": "Our first and last christmas land", "year": "2022", "location": "Banqiao", "photos": [{"src": "Photos/46.heic", "num": 46}, {"src": "Photos/47.heic", "num": 47}]}, {"no": "20", "title": "Our first AYCE at Mala Hotpot!!", "year": "2023", "location": "Xinyi", "photos": [{"src": "Photos/50.heic", "num": 50}, {"src": "Photos/51.JPG", "num": 51}]}, {"no": "21", "title": "First winter break seperation", "year": "2023", "location": "NCCU", "photos": [{"src": "Photos/52.heic", "num": 52}]}, {"no": "22", "title": "Taoyuan Night Market Impromptu Trip", "year": "2023", "location": "Taoyuan", "photos": [{"src": "Photos/53.heic", "num": 53}, {"src": "Photos/54.heic", "num": 54}]}, {"no": "23", "title": "自九 night", "year": "2023", "location": "NCCU", "photos": [{"src": "Photos/55.heic", "num": 55}, {"src": "Photos/56.JPG", "num": 56}]}, {"no": "24", "title": "Maskeran @ Hotel", "year": "2023", "location": "Taichung", "photos": [{"src": "Photos/57.heic", "num": 57}, {"src": "Photos/58.heic", "num": 58}]}, {"no": "25", "title": "Foto takut ala ala di Taichung", "year": "2023", "location": "Taichung", "photos": [{"src": "Photos/59.JPG", "num": 59}]}, {"no": "26", "title": "Summer dorm together", "year": "2023", "location": "莊一 NCCU", "photos": [{"src": "Photos/60.heic", "num": 60}]}, {"no": "27", "title": "Korea trip with Dodel's alcohol flush", "year": "2024", "location": "Korea", "photos": [{"src": "Photos/61.JPG", "num": 61}, {"src": "Photos/62.JPG", "num": 62}, {"src": "Photos/63.jpg", "num": 63}, {"src": "Photos/87.JPG", "num": 87}, {"src": "Photos/88.HEIC", "num": 88}, {"src": "Photos/89.JPG", "num": 89}, {"src": "Photos/90.JPG", "num": 90}, {"src": "Photos/91.JPG", "num": 91}]}, {"no": "28", "title": "Hangout di kamar 9420 maskeran", "year": "2024", "location": "NCCU", "photos": [{"src": "Photos/64.JPG", "num": 64}]}, {"no": "29", "title": "Christmas ritual", "year": "2024", "location": "NCCU", "photos": [{"src": "Photos/64.JPG", "num": 64}]}, {"no": "30", "title": "Us with 小黑", "year": "2025", "location": "文山區", "photos": [{"src": "Photos/65.HEIC", "num": 65}]}, {"no": "31", "title": "Awkward pose challenge", "year": "2025", "location": "中山", "photos": [{"src": "Photos/66.jpg", "num": 66}, {"src": "Photos/67.jpg", "num": 67}]}, {"no": "32", "title": "Grad photoshoot with the akongs", "year": "2025", "location": "迪化街", "photos": [{"src": "Photos/68.jpg", "num": 68}, {"src": "Photos/69.jpg", "num": 69}, {"src": "Photos/70.JPG", "num": 70}, {"src": "Photos/71.JPG", "num": 71}]}, {"no": "33", "title": "Model pose di tangga library karena gabut nunggu giliran", "year": "2025", "location": "NCCU Daxian Library", "photos": [{"src": "Photos/72.jpg", "num": 72}, {"src": "Photos/73.jpg", "num": 73}, {"src": "Photos/74.jpg", "num": 74}]}, {"no": "34", "title": "Japan Trip Woohoooooo", "year": "2026", "location": "Japan", "photos": [{"src": "Photos/76.JPG", "num": 76}, {"src": "Photos/81.JPG", "num": 81}, {"src": "Photos/92.JPG", "num": 92}, {"src": "Photos/93.JPG", "num": 93}, {"src": "Photos/94.JPG", "num": 94}, {"src": "Photos/95.JPG", "num": 95}]}];
-    const VIDEOS = [{"src": "Videos/20221009-023115-902.MP4"}, {"src": "Videos/IMG_1666.MOV"}, {"src": "Videos/IMG_1683.MOV"}, {"src": "Videos/IMG_1816.MOV"}, {"src": "Videos/IMG_3859.MOV"}, {"src": "Videos/IMG_8123.MOV"}, {"src": "Videos/RPReplay_Final1664361647.MOV"}];
-    const LETTER_PARAGRAPHS = ["Hi Del,", "I honestly don't know how to start.", "Everything happened so fast. Our first meeting feels like it was just a few weeks ago, even though somehow four years have already passed. I still remember how I first knew you as the lucky girl who kept getting the best 便當 during quarantine, while the rest of us were stuck with our nasty food. At that time, I obviously didn't know that one small memory would become the beginning of so many more.", "I had so much fun being your friend.", "At first, I really thought four years would be long enough. Long enough to spend time together, to make memories, and to go through everything slowly. But now that it has passed, I realize I definitely took that time for granted. Four years sounds long, until it becomes a collection of moments you wish you could replay.", "Who would have thought that all of our midnight crises, confusion, overthinking, and random tarot card readings would pass by so fast? We were so fickle, so dramatic, and so lost sometimes, constantly looking for answers in the most random places. But somehow, we made it through. And now we're just a couple of kids with decisions that have already been made, trying to act like we're ready for the next chapter.", "I'm going to miss having you here in Taiwan. I'll miss the random talks, the spontaneous plans, the inside jokes, and all the small ordinary moments that didn't feel important at the time but now feel impossible to replace.", "I will always remember you as someone who:"];
-    const LETTER_BULLETS = ["has absolutely no sense of direction.", "got her shoes stolen at an Airbnb.", "can fall asleep almost anywhere.", "is the most passionate about dancing.", "somehow managed to be the hardest-working part-timer I know."];
-    const LETTER_AFTER = ["I really hope that one day you'll be able to achieve everything you wanted to do in life. I hope you get to live your life fully, freely, and happily. I hope you find your own kind of slow living, in whatever country, city, or random corner of the world that makes you feel at home. And I really hope that someday, we can still go on trips together, conquer the world, and laugh about how dramatic we were during this chapter of our lives.", "Thank you for being such a goofy friend.", "Thank you for always listening to my random thoughts.", "Thank you for joining all the spontaneous trips.", "Thank you for all the random inside jokes.", "Thank you for making ordinary days feel memorable.", "Thank you for being part of my Taiwan years.", "And most of all, thank you for being my once-in-a-lifetime Dodel.", "Until our next trip.", "See you somewhere else in the world."];
-
-    const $ = (sel, root=document) => root.querySelector(sel);
-    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
-
-    const main = $('#main');
-    const landing = $('#landing');
-    const music = $('#music');
-    const musicBtn = $('#musicBtn');
-    let entered = false;
-
-    function enterMuseum() {
-      if (entered) return;
-      entered = true;
-      document.body.classList.remove('locked');
-      landing.classList.add('hidden');
-      main.classList.add('visible');
-      try { music.play().then(() => musicBtn.classList.remove('off')).catch(() => {}); } catch(e) {}
-      setTimeout(() => window.scrollTo({top:0, behavior:'instant'}), 10);
-    }
-    landing.addEventListener('click', enterMuseum);
-    landing.addEventListener('touchend', (e) => { e.preventDefault(); enterMuseum(); }, {passive:false});
-
-    musicBtn.addEventListener('click', async () => {
-      if (music.paused) {
-        try { await music.play(); musicBtn.classList.remove('off'); } catch(e) {}
-      } else { music.pause(); musicBtn.classList.add('off'); }
-    });
-
-    function buildExhibits() {
-      const wrap = $('#exhibits');
-      wrap.innerHTML = EXHIBITS.map((ex, i) => `
-        <section class="exhibit" id="exhibit-${ex.no}">
-          <div class="exhibit-card">
-            <div class="meta-top"><span>Exhibit ${ex.no}</span><span>${ex.year}</span></div>
-            <div class="exhibit-no">${ex.no}</div>
-            <div class="photo-frame">
-              <div class="swipe" data-exhibit="${ex.no}">
-                ${ex.photos.map((p,idx)=>`<div class="slide"><img src="${p.src}" alt="${escapeHtml(ex.title)}" loading="lazy" data-full="${p.src}"></div>`).join('')}
-              </div>
-              ${ex.photos.length>1 ? `<div class="dots">${ex.photos.map((_,idx)=>`<span class="dot ${idx===0?'active':''}"></span>`).join('')}</div>` : ''}
-            </div>
-            <div class="label">
-              <h2>${escapeHtml(ex.title)}</h2>
-              <div class="where"><span>${escapeHtml(ex.year)}</span><span>${escapeHtml(ex.location)}</span></div>
-            </div>
-          </div>
-        </section>`).join('');
-    }
-
-    function buildLetter() {
-      const target = $('#letterText');
-      target.innerHTML = '';
-      LETTER_PARAGRAPHS.forEach(t => target.insertAdjacentHTML('beforeend', `<p>${escapeHtml(t)}</p>`));
-      target.insertAdjacentHTML('beforeend', `<ul>${LETTER_BULLETS.map(b=>`<li>${escapeHtml(b)}</li>`).join('')}</ul>`);
-      LETTER_AFTER.forEach((t, idx) => target.insertAdjacentHTML('beforeend', `<p class="${idx>=LETTER_AFTER.length-2?'letter-ending':''}">${escapeHtml(t)}</p>`));
-    }
-
-    function buildVideos() {
-      const list = $('#videoList');
-      list.innerHTML = VIDEOS.map((v,i)=>`
-        <div class="video-card">
-          <div class="video-title"><span>Archive Recording ${String(i+1).padStart(2,'0')}</span><span>▶</span></div>
-          <video src="${v.src}" controls preload="metadata" playsinline></video>
-        </div>`).join('');
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));
-    }
-
-    buildExhibits(); buildLetter(); buildVideos();
-
-    const progress = $('#progress');
-    window.addEventListener('scroll', () => {
-      const h = document.documentElement.scrollHeight - innerHeight;
-      progress.style.width = (h>0 ? (scrollY/h)*100 : 0) + '%';
-    }, {passive:true});
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('inview'); });
-    }, {threshold:.18});
-    $$('.exhibit').forEach(el => observer.observe(el));
-
-    $$('.swipe').forEach(sw => {
-      const dots = sw.parentElement.querySelectorAll('.dot');
-      sw.addEventListener('scroll', () => {
-        if (!dots.length) return;
-        const idx = Math.round(sw.scrollLeft / sw.clientWidth);
-        dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
-      }, {passive:true});
-    });
-
-    const lightbox = $('#lightbox');
-    const lightboxImg = $('#lightboxImg');
-    document.addEventListener('click', (e) => {
-      const img = e.target.closest('.slide img');
-      if (!img) return;
-      lightboxImg.src = img.dataset.full || img.src;
-      lightbox.classList.add('visible');
-    });
-    $('#closeLightbox').addEventListener('click', () => lightbox.classList.remove('visible'));
-    lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.classList.remove('visible'); });
-
-    $('#openLetter').addEventListener('click', () => {
-      $('#letterSection').classList.add('visible');
-      $('#letterSection').scrollIntoView({behavior:'smooth'});
-    });
-    $('#showArchive').addEventListener('click', () => {
-      $('#videoArchive').classList.add('visible');
-      $('#videoArchive').scrollIntoView({behavior:'smooth'});
-    });
-  </script>
+<body>
+<div class="progress" id="progress"></div>
+<div id="cover"><div class="cover-inner"><div class="museum-label">Private Collection / Taiwan Years</div><div class="line"></div><h1 class="cover-title">THE DODEL<br>MUSEUM</h1><div class="cover-sub"><em>A Temporary Exhibition</em><br>2022 — 2026</div><div class="curated">Curated by Selena</div><div class="enter-note">Tap anywhere to enter</div><div class="line bottom"></div></div></div>
+<div class="music"><button id="musicBtn" aria-label="toggle music">♪</button><span id="musicText">Music paused</span><audio id="bgm" src="music/background.mp4" loop preload="auto"></audio></div>
+<section class="hall"><div class="content fade"><h2>Entrance Hall</h2><p>Every museum preserves something worth remembering.<br><br>This one preserves four years of friendship, laughter, late-night conversations, spontaneous trips, and a part of life we'll always call our Taiwan years.</p></div></section>
+<main id="exhibits"></main>
+<section class="archive fade"><div class="archive-card"><div class="kicker">Restricted Archive</div><h2>Personal Letter</h2><p class="loc">Authorized Visitor: Dodel</p><button class="btn" id="openLetter">Open Archive</button></div></section>
+<section class="letter-section"><div class="letter-card" id="letterCard"><div class="kicker">Document No. 2022—2026</div><h2>For Del</h2><div class="letter-text" id="letterText"></div></div></section>
+<section class="end"><h2>Until our next trip.<br><br>See you somewhere else in the world.</h2><div class="museum-archive" id="archiveLink">Museum Archive<small>(Click me for more)</small></div></section>
+<section id="videoArchive"><div style="width:100%"><div class="kicker">Archive Room</div><h2 style="font-size:clamp(40px,7vw,82px)">Recovered Recordings</h2><p class="loc">2022—2026</p><div class="video-grid" id="videos"></div></div></section>
+<div class="modal" id="modal"><button class="close" id="close">×</button><img id="modalImg" alt="Museum image"></div>
+<script id="museum-data" type="application/json">{"exhibits": [{"no": "01", "title": "The Beginning", "year": "2022", "location": "NCCU", "photos": ["photos/1.jpg", "photos/2.jpg", "photos/3.jpg"]}, {"no": "02", "title": "Touristy stuffs", "year": "2022", "location": "Xinyi, Shilin Night Market", "photos": ["photos/4.jpg", "photos/5.jpg"]}, {"no": "04", "title": "Our first PERPITA event", "year": "2022", "location": "NTUST", "photos": ["photos/6.jpg"]}, {"no": "05", "title": "Makan babi di toko depan kari 45 dulu.", "year": "2022", "location": "NCCU", "photos": ["photos/7.jpg"]}, {"no": "06", "title": "Bawah jembatan (BAJEM)", "year": "2022", "location": "NCCU", "photos": ["photos/8.jpg", "photos/9.jpg", "photos/10.jpg", "photos/11.jpg"]}, {"no": "07", "title": "Foto sama hanyang, kenapa ya...", "year": "2022", "location": "Depan 行政大樓", "photos": ["photos/12.jpg"]}, {"no": "08", "title": "Dinner kari ecol", "year": "2022", "location": "Gongguan", "photos": ["photos/13.jpg", "photos/14.jpg", "photos/15.jpg", "photos/16.jpg", "photos/17.jpg"]}, {"no": "09", "title": "Makan apaan yak ini", "year": "2022", "location": "NCCU", "photos": ["photos/18.jpg"]}, {"no": "10", "title": "Stargazing", "year": "2022", "location": "NCCU", "photos": ["photos/19.jpg"]}, {"no": "11", "title": "Random pics", "year": "2022", "location": "NCCU", "photos": ["photos/20.jpg", "photos/21.jpg", "photos/22.jpg", "photos/23.jpg", "photos/49.jpg"]}, {"no": "12", "title": "Taipei Zoo Day", "year": "2022", "location": "Taipei Zoo", "photos": ["photos/24.jpg", "photos/25.jpg", "photos/26.jpg", "photos/27.jpg"]}, {"no": "13", "title": "Costco day + Nonton lampu di presidential office + Biking", "year": "2022", "location": "Costco, somewhere near Ximen and riverside", "photos": ["photos/28.jpg", "photos/29.jpg", "photos/30.jpg", "photos/31.jpg", "photos/32.jpg", "photos/33.jpg"]}, {"no": "14", "title": "Hangout with the friend group", "year": "2022", "location": "Anjiu, NCCU", "photos": ["photos/34.jpg", "photos/35.jpg", "photos/36.jpg", "photos/37.jpg"]}, {"no": "15", "title": "Ku hamil duluan, sudah 3 bulan", "year": "2022", "location": "BAJEM NCCU", "photos": ["photos/38.jpg"]}, {"no": "16", "title": "Drunk after costco liquor", "year": "2022", "location": "中庭 Commerce, NCCU", "photos": ["photos/39.jpg"]}, {"no": "17", "title": "HALLOWEEN NIGHT", "year": "2022", "location": "MAJI", "photos": ["photos/40.jpg", "photos/41.jpg", "photos/42.jpg", "photos/43.jpg", "photos/44.jpg"]}, {"no": "18", "title": "NYOBAIN KUEH COSTCO", "year": "2022", "location": "中庭 Commerce, NCCU", "photos": ["photos/45.jpg"]}, {"no": "19", "title": "Our first and last christmas land", "year": "2022", "location": "Banqiao", "photos": ["photos/46.jpg", "photos/47.jpg"]}, {"no": "20", "title": "Our first AYCE at Mala Hotpot!!", "year": "2023", "location": "Xinyi", "photos": ["photos/50.jpg", "photos/51.jpg"]}, {"no": "21", "title": "First winter break seperation", "year": "2023", "location": "NCCU", "photos": ["photos/52.jpg"]}, {"no": "22", "title": "Taoyuan Night Market Impromptu Trip", "year": "2023", "location": "Taoyuan", "photos": ["photos/53.jpg", "photos/54.jpg"]}, {"no": "23", "title": "自九 night", "year": "2023", "location": "NCCU", "photos": ["photos/55.jpg", "photos/56.jpg"]}, {"no": "24", "title": "Maskeran @ Hotel", "year": "2023", "location": "Taichung", "photos": ["photos/57.jpg", "photos/58.jpg"]}, {"no": "25", "title": "Foto takut ala ala di Taichung", "year": "2023", "location": "Taichung", "photos": ["photos/59.jpg"]}, {"no": "26", "title": "Summer dorm together", "year": "2023", "location": "莊一 NCCU", "photos": ["photos/60.jpg"]}, {"no": "27", "title": "Korea trip with Dodel's alcohol flush", "year": "2024", "location": "Korea", "photos": ["photos/61.jpg", "photos/62.jpg", "photos/63.jpg", "photos/87.jpg", "photos/88.jpg", "photos/89.jpg", "photos/90.jpg", "photos/91.jpg"]}, {"no": "28", "title": "Hangout di kamar 9420 maskeran", "year": "2024", "location": "NCCU", "photos": ["photos/64.jpg"]}, {"no": "29", "title": "Christmas ritual", "year": "2024", "location": "NCCU", "photos": ["photos/64.jpg"]}, {"no": "30", "title": "Us with 小黑", "year": "2025", "location": "文山區", "photos": ["photos/65.jpg"]}, {"no": "31", "title": "Awkward pose challenge", "year": "2025", "location": "中山", "photos": ["photos/66.jpg", "photos/67.jpg"]}, {"no": "32", "title": "Grad photoshoot with the akongs", "year": "2025", "location": "迪化街", "photos": ["photos/68.jpg", "photos/69.jpg", "photos/70.jpg", "photos/71.jpg"]}, {"no": "33", "title": "Model pose di tangga library karena gabut nunggu giliran", "year": "2025", "location": "NCCU Daxian Library", "photos": ["photos/72.jpg", "photos/73.jpg", "photos/74.jpg"]}, {"no": "34", "title": "Japan Trip Woohoooooo", "year": "2026", "location": "Japan", "photos": ["photos/76.jpg", "photos/81.jpg", "photos/92.jpg", "photos/93.jpg", "photos/94.jpg", "photos/95.jpg"]}], "videos": [{"src": "videos/20221009-023115-902.MP4"}, {"src": "videos/IMG_1666.MOV"}, {"src": "videos/IMG_1683.MOV"}, {"src": "videos/IMG_1816.MOV"}, {"src": "videos/IMG_3859.MOV"}, {"src": "videos/IMG_8123.MOV"}, {"src": "videos/RPReplay_Final1664361647.MOV"}], "letter": "Hi Del,\n\nI honestly don't know how to start.\n\nEverything happened so fast. Our first meeting feels like it was just a few weeks ago, even though somehow four years have already passed. I still remember how I first knew you as the lucky girl who kept getting the best 便當 during quarantine, while the rest of us were stuck with our nasty food. At that time, I obviously didn't know that one small memory would become the beginning of so many more.\n\nI had so much fun being your friend.\n\nAt first, I really thought four years would be long enough. Long enough to spend time together, to make memories, and to go through everything slowly. But now that it has passed, I realize I definitely took that time for granted. Four years sounds long, until it becomes a collection of moments you wish you could replay.\n\nWho would have thought that all of our midnight crises, confusion, overthinking, and random tarot card readings would pass by so fast? We were so fickle, so dramatic, and so lost sometimes, constantly looking for answers in the most random places. But somehow, we made it through. And now we're just a couple of kids with decisions that have already been made, trying to act like we're ready for the next chapter.\n\nI'm going to miss having you here in Taiwan. I'll miss the random talks, the spontaneous plans, the inside jokes, and all the small ordinary moments that didn't feel important at the time but now feel impossible to replace.\n\nI will always remember you as someone who:\n• has absolutely no sense of direction.\n• got her shoes stolen at an Airbnb.\n• can fall asleep almost anywhere.\n• is the most passionate about dancing.\n• somehow managed to be the hardest-working part-timer I know.\n\nI really hope that one day you'll be able to achieve everything you wanted to do in life. I hope you get to live your life fully, freely, and happily. I hope you find your own kind of slow living, in whatever country, city, or random corner of the world that makes you feel at home. And I really hope that someday, we can still go on trips together, conquer the world, and laugh about how dramatic we were during this chapter of our lives.\n\nThank you for being such a goofy friend.\n\nThank you for always listening to my random thoughts.\n\nThank you for joining all the spontaneous trips.\n\nThank you for all the random inside jokes.\n\nThank you for making ordinary days feel memorable.\n\nThank you for being part of my Taiwan years.\n\nAnd most of all, thank you for being my once-in-a-lifetime Dodel.\n\nUntil our next trip.\n\nSee you somewhere else in the world."}</script>
+<script>
+const data=JSON.parse(document.getElementById('museum-data').textContent);const exhibits=document.getElementById('exhibits');
+function el(tag,cls,html){const x=document.createElement(tag);if(cls)x.className=cls;if(html!==undefined)x.innerHTML=html;return x}
+data.exhibits.forEach(e=>{const s=el('section','exhibit fade');const meta=el('div','meta');meta.innerHTML=`<div class="num">${e.no}</div><h2>${e.title}</h2><div class="year">${e.year}</div><div class="loc">${e.location}</div>`;const gal=el('div','gallery '+(e.photos.length===1?'single':''));e.photos.forEach(src=>{const f=el('div','frame');const img=new Image();img.src=src;img.alt=e.title;img.loading='lazy';f.appendChild(img);f.onclick=()=>openModal(src);gal.appendChild(f)});s.append(meta,gal);exhibits.appendChild(s)});
+const vids=document.getElementById('videos');data.videos.forEach((v,i)=>{const card=el('div','video-card');card.innerHTML=`<video controls playsinline preload="metadata" src="${v.src}"></video><p>Archive Recording ${String(i+1).padStart(2,'0')}</p>`;vids.appendChild(card)});
+const cover=document.getElementById('cover'), bgm=document.getElementById('bgm'), musicBtn=document.getElementById('musicBtn'), musicText=document.getElementById('musicText');
+async function playMusic(){try{await bgm.play(); musicText.textContent='Music playing'; musicBtn.textContent='❚❚'}catch(e){musicText.textContent='Tap ♪ to play';}}
+cover.addEventListener('click',()=>{document.body.classList.add('entered'); playMusic();});
+musicBtn.onclick=()=>{if(bgm.paused)playMusic();else{bgm.pause();musicText.textContent='Music paused';musicBtn.textContent='♪'}};
+const io=new IntersectionObserver(entries=>entries.forEach(en=>{if(en.isIntersecting)en.target.classList.add('visible')}),{threshold:.12});document.querySelectorAll('.fade').forEach(x=>io.observe(x));
+window.addEventListener('scroll',()=>{const h=document.documentElement;const denom=Math.max(1,h.scrollHeight-h.clientHeight);document.getElementById('progress').style.width=(h.scrollTop/denom*100)+'%'});
+const letterCard=document.getElementById('letterCard'), letterText=document.getElementById('letterText');document.getElementById('openLetter').onclick=()=>{letterCard.classList.add('open');letterText.textContent='';document.querySelector('.letter-section').scrollIntoView({behavior:'smooth'});let i=0;const t=data.letter;const timer=setInterval(()=>{letterText.textContent+=t[i++]||''; if(i>t.length)clearInterval(timer)},12)};
+document.getElementById('archiveLink').onclick=()=>{document.getElementById('videoArchive').classList.add('open');document.getElementById('videoArchive').scrollIntoView({behavior:'smooth'})};
+const modal=document.getElementById('modal'), modalImg=document.getElementById('modalImg');function openModal(src){modalImg.src=src;modal.classList.add('open')}document.getElementById('close').onclick=()=>modal.classList.remove('open');modal.onclick=e=>{if(e.target===modal)modal.classList.remove('open')};
+</script>
 </body>
 </html>
